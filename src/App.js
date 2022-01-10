@@ -10,7 +10,7 @@ import {
   Modal,
   ListGroup,
 } from "react-bootstrap";
-import { Table, Form, Input, message, Divider, notification} from "antd";
+import { Table, Form, Input, message, Divider, notification } from "antd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "antd/dist/antd.css";
 import moment from "moment";
@@ -18,7 +18,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { Tabs } from "antd";
-import { io } from 'socket.io-client'
+import { io } from "socket.io-client";
 const { TabPane } = Tabs;
 
 function App() {
@@ -50,12 +50,14 @@ function App() {
       render: (date) => <a>{moment(date).format("DD-MM-YYYY")}</a>,
     },
     {
-      title: 'Action',
-      dataIndex: '',
-      key: 'x',
+      title: "Action",
+      dataIndex: "",
+      key: "x",
       render: (text, record) => (
         <Button
-          onClick={(e) => { deleteProduct(record._id); }}
+          onClick={(e) => {
+            deleteProduct(record._id);
+          }}
         >
           Delete
         </Button>
@@ -75,12 +77,14 @@ function App() {
       render: (date) => <a>{moment(date).format("LLL")}</a>,
     },
     {
-      title: 'Action',
-      dataIndex: '',
-      key: 'x',
+      title: "Action",
+      dataIndex: "",
+      key: "x",
       render: (text, record) => (
         <Button
-          onClick={(e) => { deleteNotification(record._id); }}
+          onClick={(e) => {
+            deleteNotification(record._id);
+          }}
         >
           Delete
         </Button>
@@ -101,12 +105,14 @@ function App() {
       render: (date) => <a>{moment(date).format("DD-MM-YYYY")}</a>,
     },
     {
-      title: 'Action',
-      dataIndex: '',
-      key: 'x',
+      title: "Action",
+      dataIndex: "",
+      key: "x",
       render: (text, record) => (
         <Button
-          onClick={(e) => { deleteNotification(record._id); }}
+          onClick={(e) => {
+            deleteNotification(record._id);
+          }}
         >
           Delete
         </Button>
@@ -129,7 +135,7 @@ function App() {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-
+  // Methode pour avoir la liste des produits
   const getProducts = async () => {
     try {
       const { data } = await axios.get("http://localhost:8000/products/");
@@ -139,16 +145,18 @@ function App() {
     }
   };
 
+  // Methode pour supprimer un produit
   const deleteProduct = async (id) => {
     try {
-      console.log(id)
+      console.log(id);
       await axios.delete(`http://localhost:8000/products/${id}`);
       setRefresh(!refresh);
     } catch (e) {
       console.log(e);
-    } 
-  }
+    }
+  };
 
+  // Methode pour avoir la liste des notifications de temperature
   const getNotifications = async () => {
     try {
       const { data } = await axios.get(
@@ -160,6 +168,7 @@ function App() {
     }
   };
 
+  // Methode pour avoir la liste des notifications d'expiration
   const getNotifications1 = async () => {
     try {
       const { data } = await axios.get(
@@ -172,17 +181,16 @@ function App() {
     }
   };
 
+  // Methode pour supprimer une notifications
   const deleteNotification = async (id) => {
     try {
-      console.log(id)
+      console.log(id);
       await axios.delete(`http://localhost:8000/notifications/${id}`);
       setRefresh(!refresh);
     } catch (e) {
       console.log(e);
-    } 
+    }
   };
-
-  
 
   useEffect(() => {
     getProducts();
@@ -190,16 +198,16 @@ function App() {
     getNotifications1();
   }, [refresh]);
 
-    useEffect(() => {
-      const socket = io("http://localhost:3031");
-    socket.on("popup", (arg) => {  
+  useEffect(() => {
+    const socket = io("http://localhost:3031");
+    // On écoute à la socket et on attend de recevoir un message direct du back end (pour generer la pop up instantanement)
+    socket.on("popup", (arg) => {
       console.log(arg);
       notification.open({
         message: arg.title,
-        description:
-          arg.description,
+        description: arg.description,
         onClick: () => {
-          console.log('Notification Clicked!');
+          console.log("Notification Clicked!");
         },
       });
     });
@@ -207,6 +215,7 @@ function App() {
   return (
     <Container>
       <Row>
+        {/* Notre page principale est composé de deux boutins: Produits et Notification */}
         <Card style={{ marginTop: 50, marginBottom: 50 }}>
           <Card.Body>
             <Row>
@@ -224,14 +233,16 @@ function App() {
           </Card.Body>
         </Card>
       </Row>
-
+      {/* Le Modal des produits */}
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Liste des produits</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {/* Lister tout produit */}
           <Table dataSource={products} columns={columns} />;
           <Divider plain>Ajouter un produit</Divider>
+          {/* Formulaire pour ajouter un nouveau produit*/}
           <Form
             name="basic"
             labelCol={{ span: 8 }}
@@ -246,7 +257,11 @@ function App() {
               <Input />
             </Form.Item>
 
-            <Form.Item label="Date expiration" name="dateExp" rules={[{ required: true }]}>
+            <Form.Item
+              label="Date expiration"
+              name="dateExp"
+              rules={[{ required: true }]}
+            >
               <DatePicker
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
@@ -269,17 +284,22 @@ function App() {
           </Button>
         </Modal.Footer>
       </Modal>
-
+      {/* Un Modal pour les notifications */}
       <Modal show={show1} onHide={handleClose1}>
         <Modal.Header closeButton>
-          <Modal.Title>Liste des produits</Modal.Title>
+          <Modal.Title>Notifications</Modal.Title>
         </Modal.Header>
+
+        {/* Deuxieme Modal pour les notification */}
         <Modal.Body>
+          {/* Deux tabs pour les deux types de notifications: Temperature et expiration */}
           <Tabs defaultActiveKey="1">
             <TabPane tab="Notification Temprature" key="1">
+              {/* Lister les notifications de temperature*/}
               <Table dataSource={notifications} columns={columns1} />
             </TabPane>
             <TabPane tab="Notification Expiration" key="2">
+              {/* Lister les notifications d' expiration*/}
               <Table dataSource={notifications1} columns={columns2} />{" "}
             </TabPane>
           </Tabs>
